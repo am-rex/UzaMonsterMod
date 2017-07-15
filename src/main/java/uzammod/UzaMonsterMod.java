@@ -13,6 +13,7 @@ import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import uzammod.common.CommonProxy;
 import uzammod.common.EntityBreaker;
+import uzammod.common.EntityGreenSpider;
 import uzammod.common.EntityKiller;
 import uzammod.common.EntitySmallSpider;
 
@@ -65,6 +66,7 @@ public class UzaMonsterMod
 		registerModEntity(EntityBreaker.class,		"breaker",		0x5879, 0x404000, 0x808000, 80, 4, 4);
 		registerModEntity(EntityKiller.class,		"killer",		0x587A, 0x800000, 0xFF0000, 80, 4, 4);
 		registerModEntity(EntitySmallSpider.class,	"smallspider",	0x587B, 0x202020, 0xFF0000, 80, 4, 4);
+		registerModEntity(EntityGreenSpider.class,	"greenspider",	0x587C, 0x208020, 0x002000, 80, 4, 4);
 
 		proxy.registerRender();
 	}

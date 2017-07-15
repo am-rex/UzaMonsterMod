@@ -3,6 +3,7 @@ package uzammod.client;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import uzammod.common.CommonProxy;
 import uzammod.common.EntityBreaker;
+import uzammod.common.EntityGreenSpider;
 import uzammod.common.EntityKiller;
 import uzammod.common.EntitySmallSpider;
 
@@ -13,5 +14,6 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityBreaker.class, new RenderBreaker());
 		RenderingRegistry.registerEntityRenderingHandler(EntityKiller.class, new RenderKiller());
 		RenderingRegistry.registerEntityRenderingHandler(EntitySmallSpider.class, new RenderSmallSpider());
+		RenderingRegistry.registerEntityRenderingHandler(EntityGreenSpider.class, new RenderGreenSpider());
 	}
 }
