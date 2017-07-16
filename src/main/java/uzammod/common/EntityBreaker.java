@@ -2,7 +2,6 @@ package uzammod.common;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -23,7 +22,6 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.monster.EntityGhast;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.passive.EntityVillager;
@@ -40,14 +38,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import scala.actors.threadpool.Arrays;
 
-public class EntityBreaker extends EntityMob
+public class EntityBreaker extends EntityModMobBase
 {
 
 	protected static final IAttribute field_110186_bp = (new RangedAttribute("zombie.spawnReinforcements", 0.0D, 0.0D,
 			1.0D)).setDescription("Spawn Reinforcements Chance");
-	private static final UUID babySpeedBoostUUID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
-	private static final AttributeModifier babySpeedBoostModifier = new AttributeModifier(babySpeedBoostUUID,
-			"Baby speed boost", 0.5D, 1);
 	private final EntityAIBreakDoor field_146075_bs = new EntityAIBreakDoor(this);
 	/** Ticker used to determine the time remaining for this zombie to convert into a villager when cured. */
 	private boolean field_146076_bu = false;
@@ -191,7 +186,7 @@ public class EntityBreaker extends EntityMob
 
 				if (flag)
 				{
-					this.setFire(8);
+					this.setFire(2);
 				}
 			}
 		}
@@ -231,7 +226,8 @@ public class EntityBreaker extends EntityMob
 			final int[] A = new int[] {
 					-1, -1, 0,   1, -1, 0,   0, -1, 0,   0, -1, -1,   0, -1, 1,
 					-1,  0, 0,   1,  0, 0,   0,  0, 0,   0,  0, -1,   0,  0, 1,
-					-1,  1, 0,   1,  1, 0,   0,  1, 0,   0,  1, -1,   0,  1, 1
+					-1,  1, 0,   1,  1, 0,   0,  1, 0,   0,  1, -1,   0,  1, 1,
+					-1,  2, 0,   1,  2, 0,   0,  2, 0,   0,  2, -1,   0,  2, 1
 			};
 			for (int i = 0; i < A.length / 3; i++)
 			{

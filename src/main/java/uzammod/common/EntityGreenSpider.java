@@ -1,7 +1,7 @@
 package uzammod.common;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.command.IEntitySelector;
@@ -18,11 +18,9 @@ import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
@@ -30,31 +28,23 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
-import scala.actors.threadpool.Arrays;
 
-public class EntityGreenSpider extends EntityMob
+public class EntityGreenSpider extends EntityModMobBase
 {
 	public int despawnCount = 0;
 
 	/** Selector used to determine the entities a wither boss should attack. */
 	private static final IEntitySelector attackEntitySelector = new IEntitySelector()
 	{
-		private static final String __OBFID = "CL_00001662";
-
-		/**
-		 * Return whether the specified entity is applicable to this filter.
-		 */
-		public boolean isEntityApplicable(Entity p_82704_1_)
+		public boolean isEntityApplicable(Entity entity)
 		{
-			return p_82704_1_ instanceof EntityLivingBase &&
-					p_82704_1_ instanceof EntityGreenSpider == false;
-			//((EntityLivingBase) p_82704_1_).getCreatureAttribute() != EnumCreatureAttribute.ARTHROPOD;
+			return !(entity instanceof EntityGreenSpider) && !entity.isInWater();
 		}
 	};
 
-	public EntityGreenSpider(World p_i1743_1_)
+	public EntityGreenSpider(World world)
 	{
-		super(p_i1743_1_);
+		super(world);
 		this.setSize(1.4F, 1.2F);
 		this.stepHeight = 2.1f;
 
@@ -66,8 +56,9 @@ public class EntityGreenSpider extends EntityMob
 		this.tasks.addTask(8, new EntityAILookIdle(this));
 		this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true));
 		this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true));
-		this.targetTasks.addTask(4,
-				new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, false, false, attackEntitySelector));
+		this.targetTasks.addTask(4, new EntityAINearestAttackableTarget(this, EntityLivingBase.class, 0, false, false, attackEntitySelector));
+
+		this.experienceValue = 3;
 	}
 
 	protected void entityInit()
@@ -81,49 +72,55 @@ public class EntityGreenSpider extends EntityMob
 		return true;
 	}
 
-	public boolean attackEntityFrom(DamageSource ds, float p_70097_2_)
+	public void spawnFriend()
 	{
-		boolean ret = false;
-
-		if (ds != ds.inWall)
+		int x = MathHelper.floor_double(this.posX);
+		int y = MathHelper.floor_double(this.posY) + 1;
+		int z = MathHelper.floor_double(this.posZ);
+		if( this.worldObj.canBlockSeeTheSky(x, y, z) )
 		{
-			ret = super.attackEntityFrom(ds, p_70097_2_);
-		}
+			List types = Arrays.asList(BiomeDictionary.getTypesForBiome(this.worldObj.getBiomeGenForCoords(x, z)));
 
-		if (ds.getEntity() instanceof EntityLivingBase && ret && rand.nextInt(3) == 0)
-		{
-			int x = MathHelper.floor_double(this.posX);
-			int y = MathHelper.floor_double(this.posY) + 1;
-			int z = MathHelper.floor_double(this.posZ);
-			if (this.worldObj.canBlockSeeTheSky(x, y, z))
+			if( (types.contains(Type.HOT) && types.contains(Type.DRY)) || types.contains(Type.SAVANNA) )
 			{
-				List types = Arrays.asList(BiomeDictionary.getTypesForBiome(this.worldObj.getBiomeGenForCoords(x, z)));
-
-				if (types.contains(Type.HOT) && types.contains(Type.DRY))
+				List list = this.worldObj.getEntitiesWithinAABB(EntityGreenSpider.class,
+					this.boundingBox.expand(16, 8, 16));
+				if( list.size() < this.worldObj.difficultySetting.ordinal() * 2 )
 				{
-					List list = this.worldObj.getEntitiesWithinAABB(EntityGreenSpider.class,
-							this.boundingBox.expand(16, 8, 16));
-					if (list.size() < this.worldObj.difficultySetting.ordinal() * 2)
+					for (int i = 0; i < 10; i++)
 					{
-						for (int i = 0; i < 10; i++)
+						int px = x + rand.nextInt(15) - 7;
+						int pz = z + rand.nextInt(15) - 7;
+						Block block = this.worldObj.getTopBlock(px, pz);
+						if( i == 9 || block == Blocks.sand || block == Blocks.grass )
 						{
-							int px = x + rand.nextInt(15) - 7;
-							int pz = z + rand.nextInt(15) - 7;
-							if (i == 9 || this.worldObj.getTopBlock(px, pz) == Blocks.sand)
+							int py = this.worldObj.getTopSolidOrLiquidBlock(px, pz);
+							if( Math.abs(py - y) < 4 )
 							{
-								int py = this.worldObj.getTopSolidOrLiquidBlock(px, pz);
-								if (Math.abs(py - y) < 4)
-								{
-									EntityGreenSpider entity = new EntityGreenSpider(this.worldObj);
-									entity.setPosition(px, py, pz);
-									entity.setAttackTarget(this.getAttackTarget());
-									this.worldObj.spawnEntityInWorld(entity);
-									break;
-								}
+								EntityGreenSpider entity = new EntityGreenSpider(this.worldObj);
+								entity.setPosition(px, py, pz);
+								entity.setAttackTarget(this.getAttackTarget());
+								this.worldObj.spawnEntityInWorld(entity);
+								break;
 							}
 						}
 					}
 				}
+			}
+		}
+	}
+
+	public boolean attackEntityFrom(DamageSource ds, float damage)
+	{
+		boolean ret = false;
+
+		if( ds != ds.inWall && ds != ds.cactus && ds != ds.fall )
+		{
+			ret = super.attackEntityFrom(ds, damage);
+
+			if( ds.getEntity() instanceof EntityLivingBase && ret && rand.nextInt(3) == 0 && getAttackTarget() != null )
+			{
+				spawnFriend();
 			}
 		}
 
@@ -137,29 +134,72 @@ public class EntityGreenSpider extends EntityMob
 	{
 		super.onUpdate();
 
-		if (!this.worldObj.isRemote)
+		if( !this.worldObj.isRemote )
 		{
 			this.setBesideClimbableBlock(this.isCollidedHorizontally);
 
-			if (this.isInWater() && this.ticksExisted % 15 == 0)
+			if( this.isInWater() && this.ticksExisted % 15 == 0 )
 			{
 				attackEntityFrom(DamageSource.drown, 1 + this.rand.nextInt(3));
 			}
 
-			if (getAttackTarget() != null && !getAttackTarget().isDead)
+			EntityLivingBase target = getAttackTarget();
+			if( target != null && !target.isDead )
 			{
 				this.despawnCount = 0;
+
+				if( rand.nextInt(100) == 0 )
+				{
+					spawnFriend();
+				}
+
+				if( this.onGround && rand.nextInt(10) == 0 )
+				{
+					//					System.out.printf("C : %.3f\n", this.motionY);
+
+					double dist = getDistanceSq(target.posX, this.posY, target.posZ);
+					if( dist > 1.9 * 1.9 )
+					{
+						if( rand.nextInt(50) == 0 && this.prevPosX == this.posX && this.prevPosZ == this.posZ )
+						{
+							this.motionY += 0.5 + rand.nextDouble() * 1.5;
+							this.playSound("mob.spider.say", 1.0F, 0.7F);
+							System.out.printf("N : %.3f\n", this.motionY);
+						}
+					}
+
+					if( this.motionY < 0 && dist > 5 * 5 )
+					{
+					//	this.motionY += (target.posY - this.posY) >= 2? (target.posY - this.posY) * 0.3: 0.7 + (rand.nextDouble() * 0.2);
+					//	System.out.printf("J : %.3f\n", this.motionY);
+					//	this.playSound("mob.spider.say", 1.0F, 0.7F);
+					}
+
+					if( this.motionY < 0 && target.posY - this.posY > 2 )
+					{
+						this.motionY += (target.posY - this.posY) * 0.3;
+						this.motionY += rand.nextDouble() * 0.1;
+						System.out.printf("Y : %.3f\n", this.motionY);
+						this.playSound("mob.spider.say", 1.0F, 0.7F);
+					}
+				}
+
+				if( this.motionY > 0 )
+				{
+					this.motionX += (target.posX - this.posX) * 0.01;
+					this.motionZ += (target.posZ - this.posZ) * 0.01;
+				}
 			}
 			else
 			{
-				this.despawnCount += this.despawnCount < 20? 0: 1;
+				this.despawnCount += this.despawnCount < 20 ? 1 : 0;
 
-				if (this.despawnCount >= 20 && this.ticksExisted % (20 * 5) == 10)
+				if( this.despawnCount >= 20 && this.ticksExisted % (20 * 5) == 10 )
 				{
 					List list = this.worldObj.getEntitiesWithinAABB(this.getClass(),
-							this.boundingBox.expand(16, 16, 16));
+						this.boundingBox.expand(16, 16, 16));
 
-					if (list.size() > 4)
+					if( list.size() > 4 )
 					{
 						setDead();
 					}
@@ -224,11 +264,6 @@ public class EntityGreenSpider extends EntityMob
 		super.attackEntity(p_70785_1_, p_70785_2_);
 	}
 
-	protected Item getDropItem()
-	{
-		return Items.string;
-	}
-
 	/**
 	 * Drop 0-2 items of this living's type. @param par1 - Whether this entity has recently been hit by a player. @param
 	 * par2 - Level of Looting used to kill this mob.
@@ -237,7 +272,7 @@ public class EntityGreenSpider extends EntityMob
 	{
 		super.dropFewItems(p_70628_1_, p_70628_2_);
 
-		if (p_70628_1_ && (this.rand.nextInt(3) == 0 || this.rand.nextInt(1 + p_70628_2_) > 0))
+		if( p_70628_1_ && (this.rand.nextInt(3) == 0 || this.rand.nextInt(1 + p_70628_2_) > 0) )
 		{
 			this.dropItem(Items.spider_eye, 1);
 		}
@@ -288,7 +323,7 @@ public class EntityGreenSpider extends EntityMob
 	{
 		byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
-		if (p_70839_1_)
+		if( p_70839_1_ )
 		{
 			b0 = (byte) (b0 | 1);
 		}
@@ -302,58 +337,7 @@ public class EntityGreenSpider extends EntityMob
 
 	public IEntityLivingData onSpawnWithEgg(IEntityLivingData p_110161_1_)
 	{
-		Object p_110161_1_1 = super.onSpawnWithEgg(p_110161_1_);
-
-		if (p_110161_1_1 == null)
-		{
-			p_110161_1_1 = new EntityGreenSpider.GroupData();
-
-			//	if (this.worldObj.difficultySetting == EnumDifficulty.HARD && this.worldObj.rand.nextFloat() < 0.1F
-			//			* this.worldObj.func_147462_b(this.posX, this.posY, this.posZ))
-			{
-				((EntityGreenSpider.GroupData) p_110161_1_1).func_111104_a(this.worldObj.rand);
-			}
-		}
-
-		if (p_110161_1_1 instanceof EntityGreenSpider.GroupData)
-		{
-			int i = ((EntityGreenSpider.GroupData) p_110161_1_1).field_111105_a;
-
-			if (i > 0 && Potion.potionTypes[i] != null)
-			{
-				this.addPotionEffect(new PotionEffect(i, Integer.MAX_VALUE, 0));
-			}
-		}
-
-		return (IEntityLivingData) p_110161_1_1;
-	}
-
-	public static class GroupData implements IEntityLivingData
-	{
-		public int field_111105_a;
-		private static final String __OBFID = "CL_00001700";
-
-		public void func_111104_a(Random p_111104_1_)
-		{
-			int i = p_111104_1_.nextInt(5);
-
-			if (i <= 1)
-			{
-				this.field_111105_a = Potion.moveSpeed.id;
-			}
-			else if (i <= 2)
-			{
-				this.field_111105_a = Potion.damageBoost.id;
-			}
-			else if (i <= 3)
-			{
-				this.field_111105_a = Potion.regeneration.id;
-			}
-			else if (i <= 4)
-			{
-				this.field_111105_a = Potion.invisibility.id;
-			}
-			this.field_111105_a = Potion.moveSpeed.id;
-		}
+		this.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, Integer.MAX_VALUE, 0));
+		return super.onSpawnWithEgg(p_110161_1_);
 	}
 }

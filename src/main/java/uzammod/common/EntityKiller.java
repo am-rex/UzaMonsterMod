@@ -2,7 +2,6 @@ package uzammod.common;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -26,7 +25,6 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.monster.EntityGhast;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySilverfish;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityChicken;
@@ -44,19 +42,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import scala.actors.threadpool.Arrays;
 
-public class EntityKiller extends EntityMob
+public class EntityKiller extends EntityModMobBase
 {
 
 	protected static final IAttribute field_110186_bp = (new RangedAttribute("zombie.spawnReinforcements", 0.0D, 0.0D,
 			1.0D)).setDescription("Spawn Reinforcements Chance");
-	private static final UUID babySpeedBoostUUID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
-	private static final AttributeModifier babySpeedBoostModifier = new AttributeModifier(babySpeedBoostUUID,
-			"Baby speed boost", 0.5D, 1);
 	private final EntityAIBreakDoor field_146075_bs = new EntityAIBreakDoor(this);
 	/** Ticker used to determine the time remaining for this zombie to convert into a villager when cured. */
 	private boolean field_146076_bu = false;
-	private float field_146074_bv = -1.0F;
-	private float field_146073_bw;
 
 	private List targetBlocks = Arrays.asList(
 			new Block[] {
@@ -70,8 +63,6 @@ public class EntityKiller extends EntityMob
 	/** Selector used to determine the entities a wither boss should attack. */
 	private static final IEntitySelector attackEntitySelector = new IEntitySelector()
 	{
-		private static final String __OBFID = "CL_00001662";
-
 		/**
 		 * Return whether the specified entity is applicable to this filter.
 		 */
@@ -543,30 +534,5 @@ public class EntityKiller extends EntityMob
 		{
 			super.handleHealthUpdate(p_70103_1_);
 		}
-	}
-
-	public void func_146071_k(boolean p_146071_1_)
-	{
-		this.func_146069_a(p_146071_1_ ? 0.5F : 1.0F);
-	}
-
-	/**
-	 * Sets the width and height of the entity. Args: width, height
-	 */
-	protected final void setSize(float p_70105_1_, float p_70105_2_)
-	{
-		boolean flag = this.field_146074_bv > 0.0F && this.field_146073_bw > 0.0F;
-		this.field_146074_bv = p_70105_1_;
-		this.field_146073_bw = p_70105_2_;
-
-		if (!flag)
-		{
-			this.func_146069_a(1.0F);
-		}
-	}
-
-	protected final void func_146069_a(float p_146069_1_)
-	{
-		super.setSize(this.field_146074_bv * p_146069_1_, this.field_146073_bw * p_146069_1_);
 	}
 }

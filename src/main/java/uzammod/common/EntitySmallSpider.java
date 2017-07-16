@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
@@ -15,10 +14,8 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-public class EntitySmallSpider extends EntityMob
+public class EntitySmallSpider extends EntityModMobBase
 {
-	private static final String __OBFID = "CL_00001699";
-
 	public EntitySmallSpider(World p_i1743_1_)
 	{
 		super(p_i1743_1_);

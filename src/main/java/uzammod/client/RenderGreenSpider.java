@@ -25,7 +25,7 @@ public class RenderGreenSpider extends RenderLiving
 
     protected float getDeathMaxRotation(EntityGreenSpider p_77037_1_)
     {
-        return 180.0F;
+        return 10.0F;
     }
 
     /**

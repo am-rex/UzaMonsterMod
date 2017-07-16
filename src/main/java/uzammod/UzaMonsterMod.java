@@ -6,7 +6,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
-import net.minecraft.entity.EntityList;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraftforge.common.BiomeDictionary;
@@ -16,6 +16,7 @@ import uzammod.common.EntityBreaker;
 import uzammod.common.EntityGreenSpider;
 import uzammod.common.EntityKiller;
 import uzammod.common.EntitySmallSpider;
+import uzammod.common.ItemModMonsterPlacer;
 
 @Mod(modid = UzaMonsterMod.MODID, version = UzaMonsterMod.VERSION)
 public class UzaMonsterMod
@@ -59,14 +60,19 @@ public class UzaMonsterMod
 			Type.END
 	};
 
+	public static ItemModMonsterPlacer itemSpawnEgg;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		registerModEntity(EntityBreaker.class,		"breaker",		0x5879, 0x404000, 0x808000, 80, 4, 4);
-		registerModEntity(EntityKiller.class,		"killer",		0x587A, 0x800000, 0xFF0000, 80, 4, 4);
-		registerModEntity(EntitySmallSpider.class,	"smallspider",	0x587B, 0x202020, 0xFF0000, 80, 4, 4);
-		registerModEntity(EntityGreenSpider.class,	"greenspider",	0x587C, 0x208020, 0x002000, 80, 4, 4);
+		registerModEntity(EntityBreaker.class,		"breaker",		0xFC, 0x404040, 0x008080, 80, 4, 4);
+		registerModEntity(EntityKiller.class,		"killer",		0xFD, 0x800000, 0xFF0000, 80, 4, 4);
+		registerModEntity(EntitySmallSpider.class,	"smallspider",	0xFE, 0x202020, 0xFF0000, 80, 4, 4);
+		registerModEntity(EntityGreenSpider.class,	"greenspider",	0xFF, 0x404000, 0x808000, 80, 4, 4);
+
+		itemSpawnEgg = new ItemModMonsterPlacer();
+		itemSpawnEgg.setTextureName(MODID + ":spawn_egg");
+		GameRegistry.registerItem(itemSpawnEgg, "spawn_egg");
 
 		proxy.registerRender();
 	}
@@ -85,7 +91,9 @@ public class UzaMonsterMod
 			EntityRegistry.addSpawn(entityClass, weightedProb / 8, min, max, EnumCreatureType.monster, BiomeDictionary.getBiomesForType(type));
 		}
 
-		EntityList.addMapping(entityClass, name, id, fg, bg);
+		ItemModMonsterPlacer.AddSpawn(entityClass, id, name, fg, bg);
+
+//		EntityList.addMapping(entityClass, name, id, fg, bg);
 	}
 
 	@EventHandler
