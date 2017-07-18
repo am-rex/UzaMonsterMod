@@ -1,4 +1,4 @@
-package uzammod.common;
+package uzammod.common.item;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +24,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import uzammod.Lib;
 import uzammod.UzaMonsterMod;
 
 public class ItemModMonsterPlacer extends Item
@@ -76,7 +77,7 @@ public class ItemModMonsterPlacer extends Item
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Lib.excLog(e);
 		}
 		return null;
 	}

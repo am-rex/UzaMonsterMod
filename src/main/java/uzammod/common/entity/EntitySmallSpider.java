@@ -1,4 +1,4 @@
-package uzammod.common;
+package uzammod.common.entity;
 
 import java.util.Random;
 

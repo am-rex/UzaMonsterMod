@@ -1,4 +1,4 @@
-package uzammod.client;
+package uzammod.client.renderer;
 
 import org.lwjgl.opengl.GL11;
 
@@ -11,7 +11,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import uzammod.UzaMonsterMod;
-import uzammod.common.EntitySmallSpider;
+import uzammod.common.entity.EntitySmallSpider;
 
 @SideOnly(Side.CLIENT)
 public class RenderSmallSpider extends RenderLiving

@@ -1,4 +1,4 @@
-package uzammod.client;
+package uzammod.client.renderer;
 
 import org.lwjgl.opengl.GL11;
 
@@ -8,7 +8,7 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MathHelper;
-import uzammod.common.EntityGreenSpider;
+import uzammod.common.entity.EntityGreenSpider;
 
 @SideOnly(Side.CLIENT)
 public class ModelGreenSpider extends ModelBase
@@ -106,6 +106,16 @@ public class ModelGreenSpider extends ModelBase
 		GL11.glPushMatrix();
 		GL11.glTranslated(0, -0.1, 0);
 		GL11.glScaled(1.2, 1.2, 1.2);
+
+		if( spider.friendSpawn && spider.ticksExisted < 10 )
+		{
+			GL11.glRotated( -90 + (spider.ticksExisted * 9), 1, 0, 0);
+		}
+		else if( spider.isDuringDespawn() )
+		{
+			GL11.glRotated(spider.despawnCount * 9, 1, 0, 0);
+		}
+
 		this.setRotationAngles(p_78088_2_, p_78088_3_, p_78088_4_, p_78088_5_, p_78088_6_, p_78088_7_, p_78088_1_);
 		this.spiderHead.render(p_78088_7_);
 		this.spiderNeck.render(p_78088_7_);

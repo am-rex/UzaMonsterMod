@@ -1,4 +1,4 @@
-package uzammod.common;
+package uzammod.common.entity;
 
 import java.util.Calendar;
 import java.util.List;
@@ -37,6 +37,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import scala.actors.threadpool.Arrays;
+import uzammod.Lib;
 
 public class EntityBreaker extends EntityModMobBase
 {
@@ -235,11 +236,11 @@ public class EntityBreaker extends EntityModMobBase
 				int y = ((int)(this.posY))       + A[i * 3 + 1];
 				int z = ((int)(this.posZ - 1)) + A[i * 3 + 2];
 				Block block = this.worldObj.getBlock(x, y, z);
-//				if(y==2) System.out.printf("# %d %d %d %s\n", x,y,z, block.getUnlocalizedName());
+
 				if (targetBlocks.contains(block))
 				{
 					this.worldObj.func_147480_a(x, y, z, true);
-					System.out.printf("Break block : %d %d %d %s\n", x, y, z, block.toString());
+					Lib.log("Break block : %d %d %d %s", x, y, z, block.toString());
 					break;
 				}
 			}

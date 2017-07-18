@@ -1,4 +1,4 @@
-package uzammod.client;
+package uzammod.client.renderer;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -11,7 +11,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import uzammod.UzaMonsterMod;
-import uzammod.common.EntityKiller;
+import uzammod.common.entity.EntityKiller;
 
 @SideOnly(Side.CLIENT)
 public class RenderKiller extends RenderBiped

@@ -1,4 +1,4 @@
-package uzammod.common;
+package uzammod.common.entity;
 
 import java.util.List;
 import java.util.Random;
@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.MathHelper;
+import uzammod.Lib;
 
 public class EntityAIMoveNearTargetBlock extends EntityAIBase
 {
@@ -46,7 +47,6 @@ public class EntityAIMoveNearTargetBlock extends EntityAIBase
 			int j = MathHelper.floor_double(this.entityObj.posY);
 			int k = MathHelper.floor_double(this.entityObj.posZ) + ( (this.searchPos & 0x01) != 0? -7: 7 ) + ( (this.searchPos & 0x04) != 0? 0: rand.nextInt(64)-32 );
 
-			//System.out.printf("Search block : %d %d %d %s\n", i, j, k, this.entityObj.toString());
 			for (int y = -6; y <= 6; y++)
 			{
 				if (j + y >= 1 && j + y < 256)
@@ -61,7 +61,7 @@ public class EntityAIMoveNearTargetBlock extends EntityAIBase
 								this.targetPosX = i + x;
 								this.targetPosY = j + y;
 								this.targetPosZ = k + z;
-								System.out.printf("Target block : %d %d %d %s\n", this.targetPosX, this.targetPosY, this.targetPosZ, block.toString());
+								Lib.log("Target block : %d %d %d %s", this.targetPosX, this.targetPosY, this.targetPosZ, block.toString());
 								return true;
 							}
 						}
@@ -85,7 +85,7 @@ public class EntityAIMoveNearTargetBlock extends EntityAIBase
 	 */
 	public void startExecuting()
 	{
-		System.out.printf("    tryMoveToXYZ : %d %d %d %s\n", this.targetPosX, this.targetPosY, this.targetPosZ,
+		Lib.log("    tryMoveToXYZ : %d %d %d %s", this.targetPosX, this.targetPosY, this.targetPosZ,
 				this.entityObj.getNavigator().tryMoveToXYZ(this.targetPosX, this.targetPosY, this.targetPosZ, 1.0D )? "true":"false");
 		this.targetPosY = -1;
 	}

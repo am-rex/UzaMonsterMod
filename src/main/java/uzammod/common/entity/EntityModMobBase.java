@@ -1,9 +1,10 @@
-package uzammod.common;
+package uzammod.common.entity;
 
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import uzammod.common.item.ItemModMonsterPlacer;
 
 public class EntityModMobBase extends EntityMob
 {

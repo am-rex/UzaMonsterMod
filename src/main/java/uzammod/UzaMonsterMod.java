@@ -12,11 +12,12 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
 import uzammod.common.CommonProxy;
-import uzammod.common.EntityBreaker;
-import uzammod.common.EntityGreenSpider;
-import uzammod.common.EntityKiller;
-import uzammod.common.EntitySmallSpider;
-import uzammod.common.ItemModMonsterPlacer;
+import uzammod.common.entity.EntityAcid;
+import uzammod.common.entity.EntityBreaker;
+import uzammod.common.entity.EntityGreenSpider;
+import uzammod.common.entity.EntityKiller;
+import uzammod.common.entity.EntitySmallSpider;
+import uzammod.common.item.ItemModMonsterPlacer;
 
 @Mod(modid = UzaMonsterMod.MODID, version = UzaMonsterMod.VERSION)
 public class UzaMonsterMod
@@ -65,10 +66,12 @@ public class UzaMonsterMod
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		registerModEntity(EntityBreaker.class,		"breaker",		0xFC, 0x404040, 0x008080, 80, 4, 4);
-		registerModEntity(EntityKiller.class,		"killer",		0xFD, 0x800000, 0xFF0000, 80, 4, 4);
-		registerModEntity(EntitySmallSpider.class,	"smallspider",	0xFE, 0x202020, 0xFF0000, 80, 4, 4);
-		registerModEntity(EntityGreenSpider.class,	"greenspider",	0xFF, 0x404000, 0x808000, 80, 4, 4);
+		registerModEntity(EntityBreaker.class,		"breaker",		1, 0x404040, 0x008080, 80, 4, 4);
+		registerModEntity(EntityKiller.class,		"killer",		2, 0x800000, 0xFF0000, 80, 4, 4);
+		registerModEntity(EntitySmallSpider.class,	"smallspider",	3, 0x202020, 0xFF0000, 80, 4, 4);
+		registerModEntity(EntityGreenSpider.class,	"greenspider",	4, 0x404000, 0x808000, 80, 4, 4);
+
+		EntityRegistry.registerModEntity(EntityAcid.class, "acid", 100, this, 200, 3, true);
 
 		itemSpawnEgg = new ItemModMonsterPlacer();
 		itemSpawnEgg.setTextureName(MODID + ":spawn_egg");
