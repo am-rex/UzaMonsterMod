@@ -11,6 +11,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import uzammod.UzaMonsterMod;
+import uzammod.client.model.ModelSmallSpider;
 import uzammod.common.entity.EntitySmallSpider;
 
 @SideOnly(Side.CLIENT)

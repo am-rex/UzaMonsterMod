@@ -1,4 +1,4 @@
-package uzammod.common.entity;
+package uzammod.common.entity.ai;
 
 import java.util.List;
 import java.util.Random;

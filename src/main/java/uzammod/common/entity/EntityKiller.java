@@ -1,7 +1,6 @@
 package uzammod.common.entity;
 
 import java.util.Calendar;
-import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -40,25 +39,14 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
-import scala.actors.threadpool.Arrays;
 
 public class EntityKiller extends EntityModMobBase
 {
 
-	protected static final IAttribute field_110186_bp = (new RangedAttribute("zombie.spawnReinforcements", 0.0D, 0.0D,
-			1.0D)).setDescription("Spawn Reinforcements Chance");
+	protected static final IAttribute field_110186_bp = (new RangedAttribute("zombie.spawnReinforcements", 0.0D, 0.0D, 1.0D)).setDescription("Spawn Reinforcements Chance");
 	private final EntityAIBreakDoor field_146075_bs = new EntityAIBreakDoor(this);
 	/** Ticker used to determine the time remaining for this zombie to convert into a villager when cured. */
 	private boolean field_146076_bu = false;
-
-	private List targetBlocks = Arrays.asList(
-			new Block[] {
-					Blocks.torch,
-					Blocks.fence_gate,
-					Blocks.glass_pane,
-					Blocks.redstone_torch,
-					Blocks.lever
-			});
 
 	/** Selector used to determine the entities a wither boss should attack. */
 	private static final IEntitySelector attackEntitySelector = new IEntitySelector()
@@ -97,12 +85,11 @@ public class EntityKiller extends EntityModMobBase
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(15.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(30.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(40.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.3);
-		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(1);
-		this.getAttributeMap().registerAttribute(field_110186_bp)
-				.setBaseValue(this.rand.nextDouble() * ForgeModContainer.zombieSummonBaseChance);
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(4);
+		this.getAttributeMap().registerAttribute(field_110186_bp).setBaseValue(this.rand.nextDouble() * ForgeModContainer.zombieSummonBaseChance);
 	}
 
 	protected void entityInit()
@@ -115,7 +102,7 @@ public class EntityKiller extends EntityModMobBase
 
 	public boolean canAttackClass(Class p_70686_1_)
 	{
-		return EntityGhast.class != p_70686_1_;
+		return EntityGhast.class != p_70686_1_ && EntityFreshCow.class != p_70686_1_;
 	}
 
 	/**

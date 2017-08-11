@@ -17,18 +17,18 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
-public class RenderAcid extends Render
+public class RenderEntityItem extends Render
 {
 	private Item field_94151_a;
 	private int field_94150_f;
 
-	public RenderAcid(Item p_i1259_1_, int p_i1259_2_)
+	public RenderEntityItem(Item p_i1259_1_, int p_i1259_2_)
 	{
 		this.field_94151_a = p_i1259_1_;
 		this.field_94150_f = p_i1259_2_;
 	}
 
-	public RenderAcid(Item p_i1260_1_)
+	public RenderEntityItem(Item p_i1260_1_)
 	{
 		this(p_i1260_1_, 0);
 	}

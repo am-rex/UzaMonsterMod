@@ -20,6 +20,8 @@ import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -31,6 +33,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import uzammod.Lib;
 import uzammod.UzaMonsterMod;
+import uzammod.common.entity.projectile.EntityAcid;
 
 public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditionalSpawnData
 {
@@ -42,6 +45,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 	public double spawnPointZ = 0;
 	public int attackCooldownCount = 30;
 	public Entity surpriseTargetEntity = null;
+	public int waitNextJump = 0;
 
 	static List spawnableBlocks = Arrays.asList(new Block[]{
 		Blocks.sand, Blocks.grass, Blocks.dirt
@@ -52,7 +56,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 	{
 		public boolean isEntityApplicable(Entity entity)
 		{
-			return !(entity instanceof EntityGreenSpider) && !entity.isInWater();
+			return !isFriend(entity) && !entity.isInWater();
 		}
 	};
 
@@ -69,7 +73,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(8, new EntityAILookIdle(this));
 		this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true));
-		this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true));
+		this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true, false, attackEntitySelector));
 		this.targetTasks.addTask(4, new EntityAINearestAttackableTarget(this, EntityLivingBase.class, 0, false, false, attackEntitySelector));
 
 		this.experienceValue = 3;
@@ -90,9 +94,39 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 		this.dataWatcher.addObject(17, new Byte((byte) 0));
 	}
 
+
+	public static boolean isFriend(Entity entity)
+	{
+		if( entity instanceof EntityGreenSpider )
+		{
+			return true;
+		}
+
+		if( entity instanceof EntityPlayer && ((EntityPlayer) entity).inventory.hasItem( UzaMonsterMod.itemPheromone ) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean attackEntityAsMob(Entity p_70652_1_)
+	{
+		return !isFriend( p_70652_1_ ) && super.attackEntityAsMob( p_70652_1_ );
+	}
+
 	protected boolean isAIEnabled()
 	{
 		return true;
+	}
+
+	public boolean canAttackClass(Class cls)
+	{
+		return cls != null &&
+			cls != EntityCreeper.class &&
+			cls != EntityGhast.class &&
+			cls != EntityRocketCreeper.class &&
+			cls != EntityBreaker.class;
 	}
 
 	public void spawnFriend()
@@ -184,9 +218,9 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 	/**
 	 * Called to update the entity's position/logic.
 	 */
-	public void onUpdate()
+	public void onLivingUpdate()
 	{
-		super.onUpdate();
+		super.onLivingUpdate();
 
 		if( !this.worldObj.isRemote )
 		{
@@ -203,6 +237,11 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 			this.motionY *= 0.3;
 			this.motionZ *= 0.1;
 		}
+
+		if(this.waitNextJump > 0)
+		{
+			this.waitNextJump--;
+		}
 	}
 
 	public void onUpdateServer()
@@ -215,11 +254,11 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 		}
 
 		EntityLivingBase target = getAttackTarget();
-		if( target != null && !target.isDead && !isDuringDespawn() )
+		if( target != null && !target.isDead && !isDuringDespawn() && !isFriend( target ) )
 		{
 			this.surpriseTargetEntity = null;
 
-			if( rand.nextInt(100) == 0 )
+			if( rand.nextInt(100) == 0 && canJump() )
 			{
 				spawnFriend();
 			}
@@ -236,6 +275,11 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 		}
 		else
 		{
+			if(isFriend( target ))
+			{
+				setAttackTarget( null );
+			}
+
 			if( this.ticksExisted > 40 &&
 				this.onGround &&
 				!isDuringDespawn() &&
@@ -252,6 +296,30 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 
 			if( !isDuringDespawn() )
 			{
+				if( this.ticksExisted % 20 == 0 )
+				{
+					List list = this.worldObj.getEntitiesWithinAABB( EntityPlayer.class, this.boundingBox.expand( 20, 20, 20 ) );
+					for( int i = 0; i < list.size(); i++ )
+					{
+						EntityPlayer player = (EntityPlayer) list.get( i );
+						if( isFriend( player ) )
+						{
+							for( int j = 0; j < this.worldObj.loadedEntityList.size(); j++ )
+							{
+								Entity entity = (Entity) this.worldObj.loadedEntityList.get( j );
+								if( entity instanceof EntityLiving )
+								{
+									if(((EntityLiving) entity).getAttackTarget() == player)
+									{
+										setAttackTarget( (EntityLivingBase) entity );
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+
 				if(this.surpriseTargetEntity != null)
 				{
 					if(this.surpriseTargetEntity.isDead)
@@ -290,9 +358,14 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 		}
 	}
 
+	private boolean canJump()
+	{
+		return this.onGround && this.waitNextJump == 0;
+	}
+
 	public void jumpToTarget(Entity target)
 	{
-		if( this.onGround && rand.nextInt(10) == 0 )
+		if( canJump() && rand.nextInt(10) == 0 )
 		{
 			double dist = getDistanceSq(target.posX, this.posY, target.posZ);
 			if( dist > 1.9 * 1.9 )
@@ -304,10 +377,12 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 						this.motionY += 0.5 + rand.nextDouble() * 1.0;
 						this.playSound("mob.spider.say", 2.0F, 0.5F);
 						Lib.log("N : %.3f", this.motionY);
+						startJump();
 					}
 					else
 					{
 						Lib.log("G : %f %f : %f %f", this.prevPosX, this.posX, this.prevPosZ, this.posZ);
+						this.waitNextJump += 20;
 					}
 				}
 			}
@@ -318,6 +393,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 				this.motionY += rand.nextDouble() * 0.1;
 				Lib.log("Y : %.3f", this.motionY);
 				this.playSound("mob.spider.say", 2.0F, 0.5F);
+				startJump();
 			}
 		}
 	}
@@ -346,7 +422,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 
 	public void surpriseTarget()
 	{
-		if( rand.nextInt(100) == 0 && this.onGround && this.worldObj.canBlockSeeTheSky((int) this.posX, (int) this.posY, (int) this.posZ) )
+		if( canJump() && rand.nextInt(100) == 0 && this.worldObj.canBlockSeeTheSky((int) this.posX, (int) this.posY, (int) this.posZ) )
 		{
 			this.surpriseTargetEntity = null;
 			int surpriseTargetDist = 60 * 60 * 60;
@@ -354,7 +430,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 			for (Object o : list)
 			{
 				EntityLivingBase entity = (EntityLivingBase) o;
-				if( entity instanceof EntityGreenSpider == false && !entity.isInWater() && !Lib.isEntityCreative(entity) && canAttackClass(entity.getClass()) )
+				if( !isFriend( entity ) && !entity.isDead && !entity.isInWater() && !Lib.isEntityCreative(entity) && canAttackClass(entity.getClass()) )
 				{
 					if( this.worldObj.canBlockSeeTheSky((int) entity.posX, (int) entity.posY, (int) entity.posZ) )
 					{
@@ -375,7 +451,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 				for (Object o : list)
 				{
 					EntityGreenSpider friend = (EntityGreenSpider) o;
-					if( friend.getAttackTarget() == null && friend.onGround && friend.motionY <= 0 && !friend.isDuringDespawn() && !friend.isInWater() )
+					if( friend.getAttackTarget() == null && friend.canJump() && friend.motionY <= 0 && !friend.isDuringDespawn() && !friend.isInWater() )
 					{
 						if( this.surpriseTargetEntity.posY > friend.posY )
 						{
@@ -392,6 +468,8 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 						friend.rotationYaw = -90.0F + (float) Lib.rad2deg(Lib.getRadian(friend.posX, friend.posZ, this.surpriseTargetEntity.posX, this.surpriseTargetEntity.posZ));
 						Lib.log("surpriseTarget %.0f, %.2f %.2f %.2f", Math.sqrt(surpriseTargetDist), friend.motionX, friend.motionY, friend.motionZ);
 
+						friend.startJump();
+
 						num--;
 						if( num <= 0 )
 						{
@@ -401,6 +479,11 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 				}
 			}
 		}
+	}
+
+	private void startJump()
+	{
+		this.waitNextJump = 40 + this.rand.nextInt(40);
 	}
 
 	public void onUpdateClient()
@@ -448,7 +531,7 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(20.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.4);
 		this.getEntityAttribute(SharedMonsterAttributes.knockbackResistance).setBaseValue(0.6);
 	}
@@ -495,9 +578,16 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 	/**
 	 * Basic mob attack. Default to touch of death in EntityCreature. Overridden by each mob to define their attack.
 	 */
-	protected void attackEntity(Entity p_70785_1_, float p_70785_2_)
+	protected void attackEntity(Entity entity, float p_70785_2_)
 	{
-		super.attackEntity(p_70785_1_, p_70785_2_);
+		//if(isFriend( entity ))
+		{
+	//		setAttackTarget( null );
+		}
+//		else
+		{
+			super.attackEntity(entity, p_70785_2_);
+		}
 	}
 
 	/**
@@ -510,7 +600,8 @@ public class EntityGreenSpider extends EntityModMobBase implements IEntityAdditi
 
 		if( p_70628_1_ && (this.rand.nextInt(3) == 0 || this.rand.nextInt(1 + p_70628_2_) > 0) )
 		{
-			this.dropItem(Items.spider_eye, 1);
+			this.dropItem(Items.skull, 1);
+			this.dropItem(Items.bone, 2);
 		}
 	}
 

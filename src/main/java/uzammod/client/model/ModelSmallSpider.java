@@ -1,4 +1,4 @@
-package uzammod.client.renderer;
+package uzammod.client.model;
 
 import org.lwjgl.opengl.GL11;
 

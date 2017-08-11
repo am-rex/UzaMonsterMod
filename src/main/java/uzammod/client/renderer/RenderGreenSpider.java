@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import uzammod.UzaMonsterMod;
+import uzammod.client.model.ModelGreenSpider;
 import uzammod.common.entity.EntityGreenSpider;
 
 @SideOnly(Side.CLIENT)

@@ -12,7 +12,10 @@ public class Lib
 
 	public static void log(String format, Object... args)
 	{
-		System.out.printf("[" + UzaMonsterMod.MODID + "][" + UzaMonsterMod.proxy.SideStr() + "]" + format + "\n", args);
+		if(ModSettings.printLog)
+		{
+			System.out.printf("[" + UzaMonsterMod.MODID + "][" + UzaMonsterMod.proxy.SideStr() + "]" + format + "\n", args);
+		}
 	}
 
 	public static void errLog(String format, Object... args)

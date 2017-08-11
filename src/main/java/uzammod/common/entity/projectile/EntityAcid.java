@@ -1,4 +1,4 @@
-package uzammod.common.entity;
+package uzammod.common.entity.projectile;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +15,7 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import uzammod.Lib;
 import uzammod.UzaMonsterMod;
+import uzammod.common.entity.EntityGreenSpider;
 
 public class EntityAcid extends EntityThrowable
 {
@@ -66,9 +67,9 @@ public class EntityAcid extends EntityThrowable
 				EntityLivingBase entity = (EntityLivingBase) iterator.next();
 				double d0 = this.getDistanceSqToEntity(entity);
 
-				if( d0 < (range * range) && entity instanceof EntityGreenSpider == false )
+				if( d0 < (range * range) && !EntityGreenSpider.isFriend( entity ) )
 				{
-					double d1 = 1.0D - Math.sqrt(d0) / range;
+					double d1 = 1.0D - Math.sqrt( d0 ) / range;
 					int diffc = this.worldObj.difficultySetting.ordinal();
 					float damage = (float) ((2 + diffc) * d1);
 

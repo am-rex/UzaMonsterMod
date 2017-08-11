@@ -1,5 +1,6 @@
 package uzammod.common.entity;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -36,8 +37,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
-import scala.actors.threadpool.Arrays;
 import uzammod.Lib;
+import uzammod.common.entity.ai.EntityAIMoveNearTargetBlock;
 
 public class EntityBreaker extends EntityModMobBase
 {
@@ -77,12 +78,11 @@ public class EntityBreaker extends EntityModMobBase
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(30.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(100.0D * this.worldObj.difficultySetting.ordinal());
 		this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(80.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.3);
-		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(5);
-		this.getAttributeMap().registerAttribute(field_110186_bp)
-				.setBaseValue(this.rand.nextDouble() * ForgeModContainer.zombieSummonBaseChance);
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(0.5);
+		this.getAttributeMap().registerAttribute(field_110186_bp).setBaseValue(this.rand.nextDouble() * ForgeModContainer.zombieSummonBaseChance);
 	}
 
 	protected void entityInit()
